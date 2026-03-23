@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>텍스트/이미지 표장 생성기</title>
+
+    <style>
+        :root {
+            --primary:      #1a1a2e;
+            --secondary:    #16213e;
+            --accent:       #e94560;
+            --accent-light: #ff6b8a;
+            --text:         #2c2c54;
+            --text-light:   #6c6c8a;
+            --bg:           #faf9f6;
+            --card:         #ffffff;
+            --border:       #e8e6e3;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: "Malgun Gothic", "맑은 고딕", sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1060px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .title {
+            font-family: "Malgun Gothic", "맑은 고딕", sans-serif;
+            font-size: 2.8rem;
+            font-weight: 900;
+            color: var(--primary);
+            margin-bottom: 0.4rem;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .main-grid { grid-template-columns: 1fr; }
+            .title { font-size: 2rem; }
+        }
+
+        .card {
+            background: var(--card);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(26, 26, 46, 0.08);
+            border: 1px solid var(--border);
+        }
+
+        .card-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 1.2rem;
+        }
+
+        .setting-row {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .setting-row label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-light);
+            white-space: nowrap;
+        }
+
+        .font-select {
+            padding: 0.45rem 0.8rem;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-family: "Malgun Gothic", "맑은 고딕", sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            cursor: pointer;
+            transition: border-color 0.2s;
+            flex: 1;
+            min-width: 160px;
+        }
+
+        .font-select:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .size-number-input {
+            width: 70px;
+            padding: 0.4rem 0.5rem;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 0.95rem;
+            text-align: center;
+            background: var(--bg);
+        }
+
+        .size-number-input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .toolbar-hint {
+            font-size: 0.78rem;
+            color: var(--text-light);
+            margin-bottom: 0.6rem;
+            padding: 0.5rem 0.8rem;
+            background: #f0f0f8;
+            border-radius: 8px;
+            border-left: 3px solid var(--accent);
+        }
+
+        .font-toolbar {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            margin-bottom: 0.8rem;
+            flex-wrap: wrap;
+        }
+
+        .font-toolbar label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-light);
+            white-space: nowrap;
+        }
+
+        .apply-btn {
+            padding: 0.45rem 1rem;
+            background: linear-gradient(135deg, var(--accent), var(--accent-light));
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+            font-family: "Malgun Gothic", "맑은 고딕", sans-serif;
+        }
+
+        .apply-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(233,69,96,0.3);
+        }
+
+        .reset-btn {
+            padding: 0.45rem 0.8rem;
+            background: var(--bg);
+            color: var(--text-light);
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+            font-family: "Malgun Gothic", "맑은 고딕", sans-serif;
+        }
+
+        .reset-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        #editor {
+            width: 100%;
+            min-height: 180px;
+            max-height: 280px;
+            padding: 1rem;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            font-size: 1.1rem;
+            line-height: 1.7;
+            background: var(--bg);
+            transition: border-color 0.3s;
+            overflow-y: auto;
+            outline: none;
+            white-space: pre-wrap;
+            word-break: break-all;
+            margin-bottom: 1rem;
+        }
+
+        #editor:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(233,69,96,0.1);
+        }
+
+        #editor:empty::before {
+            content: "표장 내용을 입력하세요";
+            color: #bbb;
+            pointer-events: none;
+        }
+
+        .image-upload-box {
+            margin-bottom: 1rem;
+            padding: 1rem;
+            border: 2px dashed var(--border);
+            border-radius: 12px;
+            background: var(--bg);
+        }
+
+        .image-upload-box input[type="file"] {
+            width: 100%;
+            font-size: 0.95rem;
+            color: var(--text);
+        }
+
+        .button {
+            width: 100%;
+            padding: 0.9rem 2rem;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            letter-spacing: 0.3px;
+            font-family: "Malgun Gothic", "맑은 고딕", sans-serif;
+        }
+
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(233,69,96,0.3);
+        }
+
+        .button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            color: var(--text-light);
+            font-style: italic;
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .preview-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.2rem;
+        }
+
+        .canvas-wrapper {
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            background: white;
+        }
+
+        #preview-canvas {
+            display: block;
+            max-width: 100%;
+            height: auto;
+        }
+
+        .download-btn {
+            padding: 0.75rem 1.5rem;
+            background: var(--secondary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+            font-family: "Malgun Gothic", "맑은 고딕", sans-serif;
+        }
+
+        .download-btn:hover {
+            background: var(--primary);
+            transform: translateY(-1px);
+        }
+
+        .info {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1.3rem;
+            border-radius: 15px;
+            text-align: center;
+            margin-top: 2rem;
+            font-size: 0.95rem;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(16px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <div class="header fade-in">
+        <h1 class="title">표장 생성기</h1>
+    </div>
+
+    <div class="main-grid">
+
+        <div class="card fade-in">
+            <h2 class="card-title">✏️ 텍스트 / 이미지 입력</h2>
+
+            <!-- 생성 모드 -->
+            <div class="setting-row">
+                <label>🧩 생성 방식:</label>
+
+                <label style="display:flex;align-items:center;gap:0.3rem;font-weight:400;cursor:pointer;">
+                    <input type="radio" name="generate-mode" value="text" checked onchange="toggleGenerateMode()">
+                    텍스트
+                </label>
+
+                <label style="display:flex;align-items:center;gap:0.3rem;font-weight:400;cursor:pointer;">
+                    <input type="radio" name="generate-mode" value="image" onchange="toggleGenerateMode()">
+                    이미지
+                </label>
+            </div>
+
+            <!-- 텍스트 설정 영역 -->
+            <div id="text-controls-wrap">
+                <div class="setting-row">
+                    <label>🔤 기본 폰트:</label>
+                    <select class="font-select" id="default-font-select">
+                        <option value='"Malgun Gothic","맑은 고딕",sans-serif'>맑은 고딕 (기본)</option>
+                        <option value='"Times New Roman","Malgun Gothic","맑은 고딕",serif'>Times New Roman</option>
+                        <option value='"Gulim","굴림",sans-serif'>굴림</option>
+                        <option value='"Dotum","돋움",sans-serif'>돋움</option>
+                        <option value='"Batang","바탕",serif'>바탕</option>
+                        <option value='Arial,sans-serif'>Arial</option>
+                        <option value='"Courier New",monospace'>Courier New</option>
+                        <option value='Georgia,serif'>Georgia</option>
+                    </select>
+                </div>
+
+                <div class="setting-row">
+                    <label>📐 크기:</label>
+
+                    <label style="display:flex;align-items:center;gap:0.3rem;font-weight:400;cursor:pointer;">
+                        <input type="radio" name="size-mode" value="auto" checked onchange="toggleSizeMode(this)">
+                        자동
+                    </label>
+
+                    <label style="display:flex;align-items:center;gap:0.3rem;font-weight:400;cursor:pointer;">
+                        <input type="radio" name="size-mode" value="manual" onchange="toggleSizeMode(this)">
+                        직접 지정
+                    </label>
+
+                    <div id="manual-size-wrap" style="display:none;align-items:center;gap:0.4rem;">
+                        <input type="number" id="font-size-input" class="size-number-input" value="40" min="20" max="500" step="5">
+                        <span style="font-size:0.85rem;color:var(--text-light);">pt</span>
+                    </div>
+                </div>
+
+                <div class="toolbar-hint">
+                    💡 텍스트 <strong>선택</strong> 후, 폰트/크기를 <strong>적용</strong>하세요
+                </div>
+
+                <div class="font-toolbar">
+                    <label>부분 폰트:</label>
+                    <select class="font-select" id="partial-font-select">
+                        <option value='"Times New Roman","Malgun Gothic","맑은 고딕",serif'>Times New Roman</option>
+                        <option value='"Malgun Gothic","맑은 고딕",sans-serif'>맑은 고딕</option>
+                        <option value='"Gulim","굴림",sans-serif'>굴림</option>
+                        <option value='"Dotum","돋움",sans-serif'>돋움</option>
+                        <option value='"Batang","바탕",serif'>바탕</option>
+                        <option value='Arial,sans-serif'>Arial</option>
+                        <option value='"Courier New",monospace'>Courier New</option>
+                        <option value='Georgia,serif'>Georgia</option>
+                    </select>
+
+                    <label>크기:</label>
+                    <select class="font-select" id="partial-size-select" style="flex:0;min-width:85px;">
+                        <option value="">기본</option>
+                        <option value="20">20pt</option>
+                        <option value="25">25pt</option>
+                        <option value="30">30pt</option>
+                        <option value="35">35pt</option>
+                        <option value="40">40pt</option>
+                        <option value="45">45pt</option>
+                        <option value="50">50pt</option>
+                        <option value="55">55pt</option>
+                        <option value="60">60pt</option>
+                        <option value="65">65pt</option>
+                        <option value="70">70pt</option>
+                        <option value="75">75pt</option>
+                        <option value="80">80pt</option>
+                        <option value="85">85pt</option>
+                        <option value="90">90pt</option>
+                        <option value="95">95pt</option>
+                        <option value="100">100pt</option>
+                        <option value="105">105pt</option>
+                        <option value="110">110pt</option>
+                        <option value="115">115pt</option>
+                        <option value="120">120pt</option>
+                        <option value="125">125pt</option>
+                        <option value="130">130pt</option>
+                        <option value="135">135pt</option>
+                        <option value="140">140pt</option>
+                        <option value="145">145pt</option>
+                        <option value="150">150pt</option>
+                        <option value="160">160pt</option>
+                        <option value="170">170pt</option>
+                        <option value="180">180pt</option>
+                        <option value="190">190pt</option>
+                        <option value="200">200pt</option>
+                    </select>
+
+                    <button class="apply-btn" onclick="applyPartialFont()">✅ 적용</button>
+                    <button class="reset-btn" onclick="resetAllFonts()">↩ 초기화</button>
+                </div>
+
+                <div id="editor" contenteditable="true" spellcheck="false"></div>
+            </div>
+
+            <!-- 이미지 업로드 영역 -->
+            <div id="image-upload-wrap" style="display:none;">
+                <div class="toolbar-hint">
+                    💡 PNG, JPG, JPEG, WEBP 파일을 업로드하면 표장 이미지로 변환합니다
+                </div>
+
+                <div class="image-upload-box">
+                    <input type="file" id="image-input" accept="image/png,image/jpeg,image/jpg,image/webp">
+                </div>
+            </div>
+
+            <button class="button" onclick="generateImage()">🎨 이미지 생성</button>
+            <div class="loading" id="loading">이미지 생성 중...</div>
+        </div>
+
+        <div class="card fade-in">
+            <h2 class="card-title">🖼️ 미리보기</h2>
+            <div class="preview-container">
+                <div class="canvas-wrapper">
+                    <canvas id="preview-canvas" width="945" height="945"></canvas>
+                </div>
+                <a id="download-link" class="download-btn" style="display:none;">📥 다운로드</a>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="info fade-in">
+        ℹ️ &nbsp;<strong>8cm × 8cm, 300 DPI</strong> &nbsp;|&nbsp; 텍스트 또는 이미지를 표장용 JPG로 생성합니다 👍
+    </div>
+
+</div>
+
+<script>
+    let canvas, ctx;
+    let uploadedImage = null;
+    let uploadedImageName = '';
+
+    function init() {
+        canvas = document.getElementById('preview-canvas');
+        ctx = canvas.getContext('2d');
+
+        drawGuide();
+
+        document.getElementById('default-font-select').addEventListener('change', function () {
+            document.getElementById('editor').style.fontFamily = this.value;
+        });
+
+        document.getElementById('editor').addEventListener('keydown', function (e) {
+            if (e.ctrlKey && e.key === 'Enter') {
+                e.preventDefault();
+                generateImage();
+            }
+        });
+
+        const imageInput = document.getElementById('image-input');
+        if (imageInput) {
+            imageInput.addEventListener('change', handleImageUpload);
+        }
+    }
+
+    function drawGuide() {
+        ctx.clearRect(0, 0, 945, 945);
+        ctx.fillStyle = 'white';
+        ctx.fillRect(0, 0, 945, 945);
+        ctx.fillStyle = '#cccccc';
+        ctx.font = '24px "Malgun Gothic","맑은 고딕",sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('텍스트를 입력하거나 이미지를 업로드한 뒤 생성 버튼을 눌러주세요', 472.5, 472.5);
+    }
+
+    function toggleGenerateMode() {
+        const mode = document.querySelector('input[name="generate-mode"]:checked').value;
+        const textWrap = document.getElementById('text-controls-wrap');
+        const imageWrap = document.getElementById('image-upload-wrap');
+        const downloadLink = document.getElementById('download-link');
+
+        if (mode === 'image') {
+            textWrap.style.display = 'none';
+            imageWrap.style.display = 'block';
+        } else {
+            textWrap.style.display = 'block';
+            imageWrap.style.display = 'none';
+        }
+
+        downloadLink.style.display = 'none';
+
+        if (mode === 'image' && uploadedImage) {
+            drawUploadedImagePreview();
+        } else {
+            drawGuide();
+        }
+    }
+
+    function toggleSizeMode(radio) {
+        const wrap = document.getElementById('manual-size-wrap');
+        wrap.style.display = radio.value === 'manual' ? 'flex' : 'none';
+    }
+
+    function applyPartialFont() {
+        const sel = window.getSelection();
+        const editor = document.getElementById('editor');
+
+        if (!sel || sel.isCollapsed) {
+            alert('먼저 텍스트를 드래그해서 선택해 주세요.');
+            return;
+        }
+
+        if (!editor.contains(sel.anchorNode)) {
+            alert('에디터 안의 텍스트를 선택해 주세요.');
+            return;
+        }
+
+        const fontValue = document.getElementById('partial-font-select').value;
+        const sizeValue = document.getElementById('partial-size-select').value;
+        const range = sel.getRangeAt(0);
+        const fragment = range.extractContents();
+
+        const span = document.createElement('span');
+        span.style.fontFamily = fontValue;
+        span.dataset.font = fontValue;
+
+        if (sizeValue) {
+            span.dataset.size = sizeValue;
+            span.style.fontSize = (parseInt(sizeValue, 10) * 0.15) + 'px';
+        }
+
+        span.appendChild(fragment);
+        range.insertNode(span);
+        sel.removeAllRanges();
+    }
+
+    function resetAllFonts() {
+        const editor = document.getElementById('editor');
+        const spans = editor.querySelectorAll('span[data-font]');
+
+        spans.forEach(span => {
+            while (span.firstChild) {
+                span.parentNode.insertBefore(span.firstChild, span);
+            }
+            span.parentNode.removeChild(span);
+        });
+
+        editor.normalize();
+    }
+
+    function handleImageUpload(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        if (!file.type.startsWith('image/')) {
+            alert('이미지 파일만 업로드 가능합니다.');
+            e.target.value = '';
+            return;
+        }
+
+        uploadedImageName = file.name.replace(/\.[^/.]+$/, '');
+
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            const img = new Image();
+
+            img.onload = function() {
+                uploadedImage = img;
+                drawUploadedImagePreview();
+                document.getElementById('download-link').style.display = 'none';
+            };
+
+            img.onerror = function() {
+                alert('이미지를 불러올 수 없습니다.');
+                uploadedImage = null;
+            };
+
+            img.src = event.target.result;
+        };
+
+        reader.readAsDataURL(file);
+    }
+
+    function drawUploadedImagePreview() {
+        if (!uploadedImage) {
+            drawGuide();
+            return;
+        }
+
+        const canvasSize = 945;
+        const padding = 94.5; // 원하는 여백
+        const availableSize = canvasSize - (padding * 2);
+
+        const imgW = uploadedImage.width;
+        const imgH = uploadedImage.height;
+
+        ctx.clearRect(0, 0, canvasSize, canvasSize);
+        ctx.fillStyle = 'white';
+        ctx.fillRect(0, 0, canvasSize, canvasSize);
+
+        const scale = Math.min(availableSize / imgW, availableSize / imgH);
+        const drawW = imgW * scale;
+        const drawH = imgH * scale;
+        const x = (canvasSize - drawW) / 2;
+        const y = (canvasSize - drawH) / 2;
+
+        ctx.drawImage(uploadedImage, x, y, drawW, drawH);
+    }
+
+    function parseEditorSegments() {
+        const editor = document.getElementById('editor');
+        const defaultFont = document.getElementById('default-font-select').value;
+        const rawSegments = [];
+
+        function walkNode(node, inheritedFont, inheritedSize) {
+            if (node.nodeType === Node.TEXT_NODE) {
+                if (node.textContent) {
+                    rawSegments.push({
+                        text: node.textContent,
+                        font: inheritedFont,
+                        size: inheritedSize
+                    });
+                }
+            } else if (node.nodeName === 'BR') {
+                rawSegments.push({
+                    text: '\n',
+                    font: inheritedFont,
+                    size: inheritedSize
+                });
+            } else if (node.nodeName === 'DIV' || node.nodeName === 'P') {
+                if (rawSegments.length > 0) {
+                    rawSegments.push({
+                        text: '\n',
+                        font: inheritedFont,
+                        size: inheritedSize
+                    });
+                }
+
+                const f = (node.style && node.style.fontFamily) ? node.style.fontFamily : inheritedFont;
+                const s = (node.dataset && node.dataset.size) ? parseInt(node.dataset.size, 10) : inheritedSize;
+
+                node.childNodes.forEach(child => walkNode(child, f, s));
+            } else {
+                const f = (node.style && node.style.fontFamily) ? node.style.fontFamily : inheritedFont;
+                const s = (node.dataset && node.dataset.size) ? parseInt(node.dataset.size, 10) : inheritedSize;
+
+                node.childNodes.forEach(child => walkNode(child, f, s));
+            }
+        }
+
+        editor.childNodes.forEach(child => walkNode(child, defaultFont, null));
+
+        const lines = [];
+        let currentLine = [];
+
+        rawSegments.forEach(seg => {
+            const parts = seg.text.split('\n');
+
+            parts.forEach((part, idx) => {
+                if (part) {
+                    currentLine.push({
+                        text: part,
+                        font: seg.font,
+                        size: seg.size
+                    });
+                }
+
+                if (idx < parts.length - 1) {
+                    lines.push(currentLine);
+                    currentLine = [];
+                }
+            });
+        });
+
+        if (currentLine.length > 0) {
+            lines.push(currentLine);
+        }
+
+        return lines;
+    }
+
+    function getBaseFontSize(lines) {
+        const isManual = document.querySelector('input[name="size-mode"]:checked').value === 'manual';
+
+        if (isManual) {
+            return parseInt(document.getElementById('font-size-input').value, 10) || 40;
+        }
+
+        const maxW = 945 * 0.75;
+        const maxH = 945 * 0.75;
+        let fontSize = 200;
+
+        while (fontSize > 10) {
+            let maxLineW = 0;
+
+            for (const segs of lines) {
+                let lineW = 0;
+
+                for (const seg of segs) {
+                    const fs = seg.size || fontSize;
+                    ctx.font = `${fs}px ${seg.font}`;
+                    lineW += ctx.measureText(seg.text).width;
+                }
+
+                maxLineW = Math.max(maxLineW, lineW);
+            }
+
+            const allSegs = lines.flat();
+            const maxSegSize = allSegs.length > 0
+                ? Math.max(...allSegs.map(s => s.size || fontSize))
+                : fontSize;
+
+            const lineH = maxSegSize * 1.2;
+            const totalH = lines.length * lineH - (lineH - maxSegSize);
+
+            if (maxLineW <= maxW && totalH <= maxH) {
+                return fontSize;
+            }
+
+            fontSize -= 4;
+        }
+
+        return fontSize;
+    }
+
+    function generateImage() {
+        const mode = document.querySelector('input[name="generate-mode"]:checked').value;
+
+        if (mode === 'image') {
+            generateImageFromUpload();
+        } else {
+            generateImageFromText();
+        }
+    }
+
+    function generateImageFromText() {
+        const editor = document.getElementById('editor');
+        const plainText = editor.innerText.trim();
+
+        if (!plainText) {
+            alert('텍스트를 입력해주세요.');
+            return;
+        }
+
+        document.getElementById('loading').style.display = 'block';
+        document.querySelector('.button').disabled = true;
+
+        setTimeout(() => {
+            try {
+                ctx.fillStyle = 'white';
+                ctx.fillRect(0, 0, 945, 945);
+
+                const lines = parseEditorSegments();
+
+                if (!lines.length) {
+                    alert('텍스트를 입력해주세요.');
+                    return;
+                }
+
+                const baseFontSize = getBaseFontSize(lines);
+
+                const lineHeights = lines.map(segs => {
+                    const maxSz = Math.max(...segs.map(s => s.size || baseFontSize));
+                    return maxSz * 1.2;
+                });
+
+                const totalBlockH = lineHeights.reduce((a, b) => a + b, 0) - (lineHeights[0] * 0.2);
+
+                const firstLineMaxSz = lines[0]
+                    ? Math.max(...lines[0].map(s => s.size || baseFontSize))
+                    : baseFontSize;
+
+                let currentY = (945 - totalBlockH) / 2 + firstLineMaxSz * 0.8;
+
+                ctx.fillStyle = 'black';
+                ctx.textBaseline = 'alphabetic';
+
+                lines.forEach((segs, li) => {
+                    const lineMaxSz = Math.max(...segs.map(s => s.size || baseFontSize));
+
+                    let totalLineW = 0;
+                    for (const seg of segs) {
+                        ctx.font = `${seg.size || baseFontSize}px ${seg.font}`;
+                        totalLineW += ctx.measureText(seg.text).width;
+                    }
+
+                    let x = (945 - totalLineW) / 2;
+
+                    for (const seg of segs) {
+                        const fs = seg.size || baseFontSize;
+                        ctx.font = `${fs}px ${seg.font}`;
+                        ctx.textAlign = 'left';
+
+                        const yOffset = currentY + (lineMaxSz - fs) * 0.5;
+                        ctx.fillText(seg.text, x, yOffset);
+                        x += ctx.measureText(seg.text).width;
+                    }
+
+                    currentY += lineHeights[li];
+                });
+
+                const fileName = cleanFilename(plainText) + '.jpg';
+                exportCanvasAsJpg(fileName);
+
+            } catch (e) {
+                alert('오류: ' + e.message);
+            } finally {
+                document.getElementById('loading').style.display = 'none';
+                document.querySelector('.button').disabled = false;
+            }
+        }, 100);
+    }
+
+    function generateImageFromUpload() {
+        if (!uploadedImage) {
+            alert('이미지를 먼저 업로드해주세요.');
+            return;
+        }
+
+        document.getElementById('loading').style.display = 'block';
+        document.querySelector('.button').disabled = true;
+
+        setTimeout(() => {
+            try {
+                drawUploadedImagePreview();
+                const fileName = cleanFilename(uploadedImageName || 'image_stamp') + '.jpg';
+                exportCanvasAsJpg(fileName);
+            } catch (e) {
+                alert('오류: ' + e.message);
+            } finally {
+                document.getElementById('loading').style.display = 'none';
+                document.querySelector('.button').disabled = false;
+            }
+        }, 100);
+    }
+
+    function exportCanvasAsJpg(fileName) {
+        canvas.toBlob(blob => {
+            const url = URL.createObjectURL(blob);
+            const dl = document.getElementById('download-link');
+
+            dl.href = url;
+            dl.download = fileName;
+            dl.style.display = 'inline-block';
+            dl.classList.add('fade-in');
+        }, 'image/jpeg', 1.0);
+    }
+
+    function cleanFilename(text) {
+        return text
+            .replace(/\n/g, ' ')
+            .trim()
+            .replace(/[\/\\:\*\?"<>\|]/g, '')
+            .substring(0, 150);
+    }
+
+    window.addEventListener('load', init);
+</script>
+</body>
+</html>
