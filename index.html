@@ -148,6 +148,21 @@
             white-space: nowrap;
         }
 
+        .padding-toolbar {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            margin-bottom: 0.8rem;
+            flex-wrap: wrap;
+        }
+
+        .padding-toolbar label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-light);
+            white-space: nowrap;
+        }
+
         .apply-btn {
             padding: 0.45rem 1rem;
             background: linear-gradient(135deg, var(--accent), var(--accent-light));
@@ -335,7 +350,6 @@
         <div class="card fade-in">
             <h2 class="card-title">✏️ 텍스트 / 이미지 입력</h2>
 
-            <!-- 생성 모드 -->
             <div class="setting-row">
                 <label>🧩 생성 방식:</label>
 
@@ -350,7 +364,6 @@
                 </label>
             </div>
 
-            <!-- 텍스트 설정 영역 -->
             <div id="text-controls-wrap">
                 <div class="setting-row">
                     <label>🔤 기본 폰트:</label>
@@ -364,6 +377,13 @@
                         <option value='"Courier New",monospace'>Courier New</option>
                         <option value='Georgia,serif'>Georgia</option>
                     </select>
+                </div>
+
+                <div class="setting-row">
+                    <label style="display:flex;align-items:center;gap:0.4rem;font-weight:400;cursor:pointer;">
+                        <input type="checkbox" id="auto-font-by-language" checked>
+                        입력 언어에 따라 기본 폰트 자동 적용
+                    </label>
                 </div>
 
                 <div class="setting-row">
@@ -446,7 +466,6 @@
                 <div id="editor" contenteditable="true" spellcheck="false"></div>
             </div>
 
-            <!-- 이미지 업로드 영역 -->
             <div id="image-upload-wrap" style="display:none;">
                 <div class="toolbar-hint">
                     💡 PNG, JPG, JPEG, WEBP 파일을 업로드하면 표장 이미지로 변환합니다
@@ -455,43 +474,53 @@
                 <div class="image-upload-box">
                     <input type="file" id="image-input" accept="image/png,image/jpeg,image/jpg,image/webp">
                 </div>
-            </div>
 
-            <div class="font-toolbar">
-                <label>여백:</label>
-                <select class="font-select" id="img-padding-size-select" style="flex:0;min-width:85px;" onchange="generateImage()">
-                    <option value="0">0%</option>
-                    <option value="1">1%</option>
-                    <option value="2">2%</option>
-                    <option value="3">3%</option>
-                    <option value="4">4%</option>
-                    <option value="5">5%</option>
-                    <option value="6">6%</option>
-                    <option value="7">7%</option>
-                    <option value="8">8%</option>
-                    <option value="9">9%</option>
-                    <option value="10" selected>10%</option>
-                    <option value="11">11%</option>
-                    <option value="12">12%</option>
-                    <option value="13">13%</option>
-                    <option value="14">14%</option>
-                    <option value="15">15%</option>
-                    <option value="16">16%</option>
-                    <option value="17">17%</option>
-                    <option value="18">18%</option>
-                    <option value="19">19%</option>
-                    <option value="20">20%</option>
-                    <option value="21">21%</option>
-                    <option value="22">22%</option>
-                    <option value="23">23%</option>
-                    <option value="24">24%</option>
-                    <option value="25">25%</option>
-                    <option value="26">26%</option>
-                    <option value="27">27%</option>
-                    <option value="28">28%</option>
-                    <option value="29">29%</option>
-                    <option value="30">30%</option>
-                </select>
+                <div class="padding-toolbar">
+                    <label>여백:</label>
+                    <select class="font-select" id="img-padding-size-select" style="flex:0;min-width:85px;" onchange="generateImage()">
+                        <option value="0">0%</option>
+                        <option value="1">1%</option>
+                        <option value="2">2%</option>
+                        <option value="3">3%</option>
+                        <option value="4">4%</option>
+                        <option value="5">5%</option>
+                        <option value="6">6%</option>
+                        <option value="7">7%</option>
+                        <option value="8">8%</option>
+                        <option value="9">9%</option>
+                        <option value="10" selected>10%</option>
+                        <option value="11">11%</option>
+                        <option value="12">12%</option>
+                        <option value="13">13%</option>
+                        <option value="14">14%</option>
+                        <option value="15">15%</option>
+                        <option value="16">16%</option>
+                        <option value="17">17%</option>
+                        <option value="18">18%</option>
+                        <option value="19">19%</option>
+                        <option value="20">20%</option>
+                        <option value="21">21%</option>
+                        <option value="22">22%</option>
+                        <option value="23">23%</option>
+                        <option value="24">24%</option>
+                        <option value="25">25%</option>
+                        <option value="26">26%</option>
+                        <option value="27">27%</option>
+                        <option value="28">28%</option>
+                        <option value="29">29%</option>
+                        <option value="30">30%</option>
+                        <option value="31">31%</option>
+                        <option value="32">32%</option>
+                        <option value="33">33%</option>
+                        <option value="34">34%</option>
+                        <option value="35">35%</option>
+                        <option value="36">36%</option>
+                        <option value="37">37%</option>
+                        <option value="38">38%</option>
+                        <option value="39">39%</option>
+                        <option value="40">40%</option>
+                    </select>
+                </div>
             </div>
 
             <button class="button" onclick="generateImage()">🎨 이미지 생성</button>
@@ -542,6 +571,8 @@
         if (imageInput) {
             imageInput.addEventListener('change', handleImageUpload);
         }
+
+        document.getElementById('editor').style.fontFamily = document.getElementById('default-font-select').value;
     }
 
     function drawGuide() {
@@ -669,12 +700,9 @@
             return;
         }
 
-        const paddingSize = document.getElementById("img-padding-size-select").value; 
-
+        const paddingSize = document.getElementById("img-padding-size-select").value;
         const canvasSize = 945;
-
-        // const padding = 94.5; // 원하는 여백 Defalst 10%
-        const padding = canvasSize * (paddingSize / 100); // 원하는 여백 Setting
+        const padding = canvasSize * (paddingSize / 100);
         const availableSize = canvasSize - (padding * 2);
 
         const imgW = uploadedImage.width;
@@ -693,9 +721,55 @@
         ctx.drawImage(uploadedImage, x, y, drawW, drawH);
     }
 
-    function parseEditorSegments() {
+    function detectTextLanguage(text) {
+        const normalized = (text || '').replace(/\s+/g, ' ').trim();
+
+        if (!normalized) return 'empty';
+
+        const hasKorean = /[가-힣ㄱ-ㅎㅏ-ㅣ]/.test(normalized);
+        const hasEnglish = /[A-Za-z]/.test(normalized);
+
+        if (hasKorean) return 'ko';
+        if (hasEnglish) return 'en';
+
+        return 'other';
+    }
+
+    function getAutoFontByLanguage(text, fallbackFont) {
+        const lang = detectTextLanguage(text);
+
+        if (lang === 'ko') {
+            return '"Malgun Gothic","맑은 고딕",sans-serif';
+        }
+
+        if (lang === 'en') {
+            return '"Times New Roman","Malgun Gothic","맑은 고딕",serif';
+        }
+
+        return fallbackFont;
+    }
+
+    function getEffectiveDefaultFont() {
+        const defaultFontSelect = document.getElementById('default-font-select');
+        const autoFontCheckbox = document.getElementById('auto-font-by-language');
         const editor = document.getElementById('editor');
-        const defaultFont = document.getElementById('default-font-select').value;
+
+        const selectedFont = defaultFontSelect.value;
+        const plainText = editor.innerText.trim();
+
+        if (!autoFontCheckbox || !autoFontCheckbox.checked) {
+            return selectedFont;
+        }
+
+        const autoFont = getAutoFontByLanguage(plainText, selectedFont);
+        defaultFontSelect.value = autoFont;
+        editor.style.fontFamily = autoFont;
+
+        return autoFont;
+    }
+
+    function parseEditorSegments(defaultFont) {
+        const editor = document.getElementById('editor');
         const rawSegments = [];
 
         function walkNode(node, inheritedFont, inheritedSize) {
@@ -836,7 +910,8 @@
                 ctx.fillStyle = 'white';
                 ctx.fillRect(0, 0, 945, 945);
 
-                const lines = parseEditorSegments();
+                const effectiveDefaultFont = getEffectiveDefaultFont();
+                const lines = parseEditorSegments(effectiveDefaultFont);
 
                 if (!lines.length) {
                     alert('텍스트를 입력해주세요.');
